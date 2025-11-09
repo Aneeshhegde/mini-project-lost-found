@@ -24,25 +24,43 @@ const fetchHelper = async (req, res) => {
 const createHelper = async (req, res) => {
     try {
         // get the send-in data off request body
-        const helpername = req.body.helpername;
-        const mobilenumber = req.body.mobilenumber;
-        const hostelname = req.body.hostelname;
-        const itemdetails = req.body.itemdetails;
+        const { helpername, mobilenumber, hostelname, itemdetails } = req.body;
+
+        console.log("Creating helper with data:", { helpername, mobilenumber, hostelname, itemdetails });
 
         // create an helper with id
         const createdHelper = await Helper.create({
-            helpername: helpername,
-            mobilenumber: mobilenumber,
-            hostelname: hostelname,
-            itemdetails: itemdetails
+            helpername,
+            mobilenumber,
+            hostelname,
+            itemdetails
         });
 
-        // respond with the new note
-        res.json({ createdHelper: createdHelper });
+        console.log("Helper created successfully:", createdHelper._id);
+
+        // respond with the new helper
+        res.status(201).json({ 
+            success: true,
+            createdHelper: createdHelper 
+        });
     } catch (error) {
         // Handle errors here
         console.error("Error during createHelper:", error);
-        res.status(500).send("Internal Server Error");
+        console.error("Error details:", error.message);
+        
+        // Handle validation errors
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({ 
+                success: false,
+                message: messages.join(', ')
+            });
+        }
+        
+        res.status(500).json({ 
+            success: false,
+            message: "Internal Server Error. Please try again later." 
+        });
     }
 }
 

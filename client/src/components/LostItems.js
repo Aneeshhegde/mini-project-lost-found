@@ -265,6 +265,12 @@ const LostItems = (props) => {
   };
 
   const handleSubmitHelp = async (_id) => {
+    // Validate inputs
+    if (!userName.trim() || !userMobile.trim() || !userHostel.trim()) {
+      alert("Please fill in all fields before submitting.");
+      return;
+    }
+
     setIsLoading(true);
     const data = {
       helpername: userName,
@@ -274,15 +280,37 @@ const LostItems = (props) => {
     };
 
     try {
-      await axios.post(`${Base_URL}/helper`, data);
-      alert(
-        "Thank you for helping to bring the item back! It will be temporarily removed from the portal."
-      );
-      await axios.delete(`${Base_URL}/helper/${_id}`);
-      closeModal();
+      const response = await axios.post(`${Base_URL}/helper`, data);
+      
+      if (response.data.success) {
+        alert(
+          "Thank you for helping to bring the item back! It will be temporarily removed from the portal."
+        );
+        await axios.delete(`${Base_URL}/item/${_id}`);
+        closeModal();
+        // Optionally reload the page to refresh the items list
+        window.location.reload();
+      }
     } catch (error) {
       console.error("Error submitting help:", error);
-      alert("There was an error submitting your help. Please try again.");
+      
+      if (error.response) {
+        if (error.response.status === 400) {
+          // Validation error
+          const errors = error.response.data.errors;
+          if (errors && errors.length > 0) {
+            alert(errors.map(err => err.msg).join("\n"));
+          } else {
+            alert("Invalid input. Please check your details.");
+          }
+        } else {
+          alert(error.response.data.message || "There was an error submitting your help. Please try again.");
+        }
+      } else if (error.request) {
+        alert("Cannot connect to server. Please make sure the server is running.");
+      } else {
+        alert("There was an error submitting your help. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }

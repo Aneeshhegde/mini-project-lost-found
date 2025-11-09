@@ -65,18 +65,33 @@ function Signup() {
         alert("Registration failed. Please try again.");
       }
     } catch (error) {
-      if (error.response && error.response.status === 409) {
-        alert("Email already exists. Please use a different email.");
+      console.error("Error during signup:", error);
+      
+      if (error.response) {
+        // Server responded with error
+        if (error.response.status === 409) {
+          // Duplicate email or rollno
+          alert(error.response.data.message || "Email or Roll number already exists.");
+        } else if (error.response.status === 400) {
+          // Validation error
+          const errors = error.response.data.errors;
+          if (errors && errors.length > 0) {
+            alert(errors.map(err => err.msg).join("\n"));
+          } else {
+            alert("Invalid input. Please check your details.");
+          }
+        } else {
+          alert(error.response.data.message || "An error occurred during signup. Please try again.");
+        }
+      } else if (error.request) {
+        // Request made but no response received
+        alert("Cannot connect to server. Please make sure the server is running.");
       } else {
-        console.error(
-          "Error during signup:",
-          error.response ? error.response.data : error.message,error
-         
-        );
+        // Something else happened
         alert("An error occurred during signup. Please try again.");
       }
     } finally {
-      setLoading(false); // Set loading state to false after login attempt completes
+      setLoading(false); // Set loading state to false after signup attempt completes
     }
   };
 

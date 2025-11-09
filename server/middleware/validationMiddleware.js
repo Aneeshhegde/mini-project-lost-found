@@ -3,6 +3,14 @@ const { body, param, validationResult } = require("express-validator");
 
 // User validations
 const validateSignup = [
+  body("username")
+    .notEmpty()
+    .withMessage("Username is required")
+    .isLength({ min: 3 })
+    .withMessage("Username must be at least 3 characters"),
+  body("rollno")
+    .notEmpty()
+    .withMessage("Roll number is required"),
   body("email").isEmail().withMessage("Enter a valid email"),
   body("password")
     .isLength({ min: 6 })
@@ -73,8 +81,18 @@ const validateClaimant = [
 ];
 // Helper validations
 const validateHelper = [
-  body("name").notEmpty().withMessage("Name is required"),
-  body("email").isEmail().withMessage("Enter a valid email"),
+  body("helpername")
+    .notEmpty()
+    .withMessage("Helper name is required")
+    .isLength({ min: 3 })
+    .withMessage("Helper name must be at least 3 characters"),
+  body("mobilenumber")
+    .notEmpty()
+    .withMessage("Mobile number is required")
+    .isLength({ min: 10, max: 15 })
+    .withMessage("Mobile number must be between 10-15 digits"),
+  body("hostelname").notEmpty().withMessage("Hostel name is required"),
+  body("itemdetails").notEmpty().withMessage("Item details are required"),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

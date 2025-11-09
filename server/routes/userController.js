@@ -6,6 +6,24 @@ const signup = async (req, res) => {
   try {
     const { username, rollno, email, password } = req.body;
 
+    // Check if user with email already exists
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(409).json({ 
+        success: false, 
+        message: "Email already registered. Please use a different email." 
+      });
+    }
+
+    // Check if user with rollno already exists
+    const existingRollNo = await User.findOne({ rollno });
+    if (existingRollNo) {
+      return res.status(409).json({ 
+        success: false, 
+        message: "Roll number already registered. Please use a different roll number." 
+      });
+    }
+
     // Hash password
     const hashedPassword = bcrypt.hashSync(password, 8);
 
@@ -17,12 +35,33 @@ const signup = async (req, res) => {
       password: hashedPassword
     });
 
-    // Respond with the user data
-    res.status(201).json({ user });
+    // Respond with the user data (excluding password)
+    res.status(201).json({ 
+      success: true,
+      user: {
+        _id: user._id,
+        username: user.username,
+        rollno: user.rollno,
+        email: user.email
+      }
+    });
   } catch (error) {
     // Handle errors here
-    console.log("Error during signup:", error);
-    res.status(500).send("Internal Server Error");
+    console.error("Error during signup:", error);
+    
+    // Handle MongoDB duplicate key error
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      return res.status(409).json({ 
+        success: false, 
+        message: `${field === 'email' ? 'Email' : 'Roll number'} already exists. Please use a different ${field}.` 
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal Server Error. Please try again later." 
+    });
   }
 };
 

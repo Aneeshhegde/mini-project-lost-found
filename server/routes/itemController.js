@@ -49,13 +49,14 @@ const fetchItem = async (req, res) => {
 };
 
 const createItem = async (req, res) => {
-  const { images } = req.body;
+  const { images, phonenumber } = req.body;
   try {
     // Extract data from the request body
     const itemname = req.body.itemname;
     const itemdescription = req.body.itemdescription;
     const concerntype = req.body.concerntype;
-    console.log(images);
+    console.log("Images:", images);
+    console.log("Phone number:", phonenumber);
 
     // Get the user ID from the authenticated user (assuming you have authentication middleware)
     const userId = req.params.id; // Adjust this based on your authentication setup
@@ -65,16 +66,33 @@ const createItem = async (req, res) => {
       itemname: itemname,
       itemdescription: itemdescription,
       concerntype: concerntype,
+      phonenumber: phonenumber,
       images: images,
       user: userId, // Include the user ID in the item
     });
 
     // Respond with the created item
-    res.json({ item: item });
+    res.status(201).json({ 
+      success: true,
+      item: item 
+    });
   } catch (error) {
     // Handle errors here
     console.error("Error during createItem:", error);
-    res.status(500).send("Internal Server Error");
+    
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ 
+        success: false,
+        message: messages.join(', ')
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      message: "Internal Server Error" 
+    });
   }
 };
 

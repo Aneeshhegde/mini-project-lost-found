@@ -204,6 +204,9 @@ const Navbar = () => {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -218,8 +221,46 @@ const Navbar = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    setIsAdmin(false);
+    localStorage.removeItem("isAdmin");
     navigate("/home");
   };
+
+  const handleAdminClick = () => {
+    setShowAdminModal(true);
+  };
+
+  const handleAdminLogin = () => {
+    // Admin credentials - you can change these
+    const ADMIN_USERNAME = "admin";
+    const ADMIN_PASSWORD = "admin123";
+    
+    if (adminPassword === ADMIN_PASSWORD) {
+      setIsAdmin(true);
+      localStorage.setItem("isAdmin", "true");
+      setShowAdminModal(false);
+      setAdminPassword("");
+      
+      // Go directly to admin portal (no user login required)
+      navigate("/admin");
+    } else {
+      alert("Incorrect password! Please try again.");
+      setAdminPassword("");
+    }
+  };
+
+  const closeModal = () => {
+    setShowAdminModal(false);
+    setAdminPassword("");
+  };
+
+  // Check if user is admin on mount
+  useEffect(() => {
+    const adminStatus = localStorage.getItem("isAdmin");
+    if (adminStatus === "true") {
+      setIsAdmin(true);
+    }
+  }, []);
 
   const isActive = (path) => location.pathname === path;
 
@@ -293,6 +334,12 @@ const Navbar = () => {
     { path: "/sign-in", label: "Sign In", auth: false },
   ];
 
+  const handleAdminAccessBeforeLogin = () => {
+    // Show admin login modal even before user login
+    console.log("Admin button clicked, opening modal...");
+    setShowAdminModal(true);
+  };
+
   return (
     <div style={navbarStyle}>
       <div style={linkContainerStyle}>
@@ -303,6 +350,20 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
+        {!user && (
+          <button
+            onClick={handleAdminAccessBeforeLogin}
+            style={{
+              ...linkStyle("/admin"),
+              backgroundColor: isAdmin ? "#51cf66" : "#ff6b6b",
+              color: "white",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            {isAdmin ? "✅ Admin Portal" : "🔐 Admin"}
+          </button>
+        )}
         {user && (
           <Link to="/" style={linkStyle("/")} onClick={handleLogout}>
             Logout
@@ -327,6 +388,24 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
+        {!user && (
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              handleAdminAccessBeforeLogin();
+            }}
+            style={{
+              ...linkStyle("/admin"),
+              backgroundColor: isAdmin ? "#51cf66" : "#ff6b6b",
+              color: "white",
+              border: "none",
+              cursor: "pointer",
+              width: "100%",
+            }}
+          >
+            {isAdmin ? "✅ Admin Portal" : "🔐 Admin"}
+          </button>
+        )}
         {user && (
           <Link
             to="/"
@@ -340,6 +419,95 @@ const Navbar = () => {
           </Link>
         )}
       </div>
+
+      {/* Admin Login Modal */}
+      {showAdminModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+          onClick={closeModal}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "30px",
+              borderRadius: "12px",
+              boxShadow: "0 8px 16px rgba(0, 0, 0, 0.3)",
+              width: "400px",
+              maxWidth: "90%",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{ color: "#2c3e50", marginBottom: "20px", textAlign: "center" }}>
+              🔐 Admin Login
+            </h2>
+            <p style={{ color: "#7f8c8d", marginBottom: "20px", textAlign: "center" }}>
+              Enter admin password to access the admin portal
+            </p>
+            <input
+              type="password"
+              placeholder="Enter admin password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleAdminLogin()}
+              style={{
+                width: "100%",
+                padding: "12px",
+                marginBottom: "20px",
+                border: "2px solid #ddd",
+                borderRadius: "8px",
+                fontSize: "16px",
+                boxSizing: "border-box",
+              }}
+              autoFocus
+            />
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                onClick={handleAdminLogin}
+                style={{
+                  flex: 1,
+                  padding: "12px",
+                  backgroundColor: "#3498db",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                }}
+              >
+                Login
+              </button>
+              <button
+                onClick={closeModal}
+                style={{
+                  flex: 1,
+                  padding: "12px",
+                  backgroundColor: "#95a5a6",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

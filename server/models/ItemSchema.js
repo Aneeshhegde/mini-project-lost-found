@@ -24,7 +24,11 @@ const ItemSchema = new mongoose.Schema({
         type: String,
         enum: ['lost', 'found'], // Specify the allowed values
     },
-
+    phonenumber: {
+        type: String,
+        required: true,
+        minlength: 10
+    },
     images: [{ type: String }], // Array to store image paths
     date: {
         type: Date,

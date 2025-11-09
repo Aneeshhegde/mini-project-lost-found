@@ -33,7 +33,7 @@ app.use(cookieParser());
 // CORS configuration to allow requests from your client
 app.use(
   cors({
-    origin: ["http://13.61.63.5:3000", "http://localhost:3000", "https://yourdomain.com"], // Allow these origins
+    origin: ["http://13.61.63.5:3000", "http://localhost:3000", "http://localhost:3002", "https://yourdomain.com"], // Allow these origins
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   })
 );

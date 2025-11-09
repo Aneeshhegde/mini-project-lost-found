@@ -47,6 +47,11 @@ const validateItem = [
     .withMessage("Concern type is required")
     .isIn(["lost", "found"])
     .withMessage("Concern type must be either 'lost' or 'found'"),
+  body("phonenumber")
+    .notEmpty()
+    .withMessage("Phone number is required")
+    .isLength({ min: 10, max: 15 })
+    .withMessage("Phone number must be between 10-15 digits"),
   body("images")
     .isArray()
     .withMessage("Images should be an array (even if empty)"),

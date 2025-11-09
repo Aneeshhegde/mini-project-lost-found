@@ -218,6 +218,7 @@ function LostAndFoundForm() {
   const [itemname, setItemName] = useState("");
   const [itemdescription, setItemDescription] = useState("");
   const [concerntype, setConcernType] = useState("lost");
+  const [phonenumber, setPhoneNumber] = useState("");
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -288,6 +289,7 @@ function LostAndFoundForm() {
   const handleItemNameChange = (e) => setItemName(e.target.value);
   const handleItemDescriptionChange = (e) => setItemDescription(e.target.value);
   const handleConcernTypeChange = (e) => setConcernType(e.target.value);
+  const handlePhoneNumberChange = (e) => setPhoneNumber(e.target.value);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -301,6 +303,7 @@ function LostAndFoundForm() {
       itemname,
       itemdescription,
       concerntype,
+      phonenumber,
       images,
     };
 
@@ -320,6 +323,7 @@ function LostAndFoundForm() {
       setItemName("");
       setItemDescription("");
       setConcernType("lost");
+      setPhoneNumber("");
       setImages([]);
 
       navigate("/my-items/");
@@ -376,6 +380,21 @@ function LostAndFoundForm() {
               <option value="lost">Lost</option>
               <option value="found">Found</option>
             </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="phonenumber">Phone Number (for WhatsApp notifications):</label>
+            <input
+              type="tel"
+              id="phonenumber"
+              name="phonenumber"
+              value={phonenumber}
+              onChange={handlePhoneNumberChange}
+              placeholder="Enter your phone number with country code (e.g., +919876543210)"
+              required
+              minLength="10"
+              maxLength="15"
+            />
           </div>
 
           <div className="form-group">

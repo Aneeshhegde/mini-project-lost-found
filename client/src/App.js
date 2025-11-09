@@ -9,6 +9,8 @@ import LostAndFoundList from "./components/LostAndFoundList";
 import HelperList from "./components/HelperList";
 import ClaimantList from "./components/ClaimantList";
 import PersonalItems from "./components/PersonalItems";
+import AdminPortal from "./components/AdminPortal";
+import AdminRoute from "./components/AdminRoute";
 import "./App.css";
 import { useSelector } from "react-redux";
 import { selectUser } from "./utils/userSlice";
@@ -44,6 +46,14 @@ const App = () => {
         <Route
           path="/claimants"
           element={user ? <ClaimantList /> : <Signin />}
+        />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminPortal />
+            </AdminRoute>
+          }
         />
         <Route path="/*" element={<NotFound />} />
       </Routes>
